@@ -1,0 +1,6 @@
+alembic
+sqlalchemy[asyncio]
+asyncpg
+pydantic
+pydantic-settings
+
