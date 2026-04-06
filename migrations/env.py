@@ -1,4 +1,4 @@
-from logging.config import fileconfig
+from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
@@ -18,7 +18,7 @@ config_alembic.set_main_option("sqlalchemy.url", config.db.url)
 
 # Інтерпретуємо конфігурацію файлу та налаштовуємо логування
 if config_alembic.config_file_name is not None:
-    fileconfig(config_alembic.config_file_name)
+    fileConfig(config_alembic.config_file_name)
 
 # Метадані для автогенерації
 target_metadata = Base.metadata

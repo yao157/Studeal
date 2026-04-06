@@ -1,0 +1,34 @@
+# Секрети
+.env
+.env.local
+.env.*.local
+
+# Віртуальне середовище
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Інструменти / тести
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE / ОС
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store

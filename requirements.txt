@@ -3,4 +3,5 @@ sqlalchemy[asyncio]
 asyncpg
 pydantic
 pydantic-settings
+aiogram>=3.13,<4
 

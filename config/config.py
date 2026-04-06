@@ -1,8 +1,10 @@
-from pydantic import SecretStr, RedisDsn, PostgresDsn
+from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class DbConfig(BaseSettings):
-    """Налаштування бази даних PostgreSQL"""
+
+class DbConfig(BaseModel):
+    """Налаштування бази даних PostgreSQL (з .env лише через префікс DB__)."""
+
     host: str
     port: int = 5432
     user: str
@@ -15,8 +17,9 @@ class DbConfig(BaseSettings):
     def url(self) -> str:
         return f"postgresql+asyncpg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}"
 
-class RedisConfig(BaseSettings):
-    """Налаштування Redis (для FSM та кешу)"""
+class RedisConfig(BaseModel):
+    """Налаштування Redis (для FSM та кешу); опційно через REDIS__*."""
+
     host: str = "localhost"
     port: int = 6379
     db_fsm: int = 0  # База для станів діалогів
@@ -26,8 +29,9 @@ class RedisConfig(BaseSettings):
     def url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.db_fsm}"
 
-class BotConfig(BaseSettings):
-    """Налаштування Telegram ботів"""
+class BotConfig(BaseModel):
+    """Налаштування Telegram ботів (BOT__* у .env)."""
+
     token_main: SecretStr  # Токен основного бота
     token_task: SecretStr  # Токен бота завдань
     admin_ids: list[int]   # Список ID адмінів
@@ -35,9 +39,10 @@ class BotConfig(BaseSettings):
 
 class Settings(BaseSettings):
     """Головний клас налаштувань"""
-    db: DbConfig = DbConfig()
+
+    db: DbConfig
     redis: RedisConfig = RedisConfig()
-    bot: BotConfig = BotConfig()
+    bot: BotConfig
 
     # Вказуємо, звідки читати змінні (.env файл)
     model_config = SettingsConfigDict(
