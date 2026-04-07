@@ -16,14 +16,17 @@
 pip install -r requirements.txt
 ```
 
-2. Створіть файл `.env` з налаштуваннями:
+2. Створіть файл `.env` (орієнтир — `.env.example`): `DB__*`, `BOT__*`, інші поля з `config/config.py`.
+
+## Запуск через Docker Compose
+
+Піднімає **PostgreSQL** і **Task Bot**. Перед першим запуском скопіюй `.env.example` → `.env` і вкажи токени ботів та інші секрети.
+
+```bash
+docker compose up -d --build
 ```
-DB__HOST=localhost
-DB__PORT=5432
-DB__USER=your_user
-DB__PASSWORD=your_password
-DB__NAME=studeal_db
-```
+
+У контейнері бота **автоматично** виконується `alembic upgrade head`, потім `python main.py`. Змінна `DB__HOST` для бота встановлюється на сервіс `postgres`; у `.env` для локального запуску без Docker лишай `DB__HOST=localhost`.
 
 ## Міграції бази даних (Alembic)
 

@@ -1,0 +1,1 @@
+"""Telegram-боти проєкту Studeal."""

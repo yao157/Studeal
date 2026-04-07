@@ -1,0 +1,37 @@
+# Параметри БД для postgres і bot підставляються з файлу `.env` у цьому каталозі
+# (DB__USER, DB__PASSWORD, DB__NAME). Сервіс bot додатково заставляє DB__HOST=postgres.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: studeal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB__USER:-studeal}
+      POSTGRES_PASSWORD: ${DB__PASSWORD:-secret}
+      POSTGRES_DB: ${DB__NAME:-studeal_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - studeal_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build: .
+    container_name: studeal_task_bot
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB__HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  studeal_pgdata:

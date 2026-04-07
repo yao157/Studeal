@@ -1,7 +1,9 @@
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.dialects.postgresql import insert
+from decimal import Decimal
 from typing import Optional
+
+from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models.users import User
 
@@ -10,30 +12,46 @@ class UserRepo:
         self.session = session
 
     async def get_or_create_user(
-        self, 
-        telegram_id: int, 
-        username: str | None = None, 
+        self,
+        telegram_id: int,
+        username: str | None = None,
         full_name: str = "",
-        role: str = "user"
+        role: str = "user",
+        phone: str | None = None,
     ) -> User:
+        """Реєструє користувача, якщо його немає; оновлює профіль при конфлікті.
+
+        Args:
+            telegram_id: Ідентифікатор користувача в Telegram.
+            username: Юзернейм без @; може бути None.
+            full_name: Повне ім'я для відображення.
+            role: Роль у системі (наприклад, ``user`` або ``admin``).
+            phone: Номер телефону після надсилання контакту.
+
+        Returns:
+            Актуальний запис користувача з бази.
         """
-        Реєструє користувача, якщо його немає.
-        Повертає об'єкт користувача.
-        """
-        stmt = insert(User).values(
-            telegram_id=telegram_id,
-            username=username,
-            full_name=full_name,
-            role=role,
-            balance=0.0,
-            rating=0.0
-        ).on_conflict_do_update(
-            index_elements=[User.telegram_id],
-            set_=dict(
+        set_on_update = dict(username=username, full_name=full_name)
+        if phone is not None:
+            set_on_update["phone"] = phone
+
+        stmt = (
+            insert(User)
+            .values(
+                telegram_id=telegram_id,
                 username=username,
-                full_name=full_name
+                full_name=full_name,
+                role=role,
+                phone=phone,
+                balance=Decimal("0"),
+                rating=0.0,
             )
-        ).returning(User)
+            .on_conflict_do_update(
+                index_elements=[User.telegram_id],
+                set_=set_on_update,
+            )
+            .returning(User)
+        )
 
         result = await self.session.execute(stmt)
         await self.session.commit()
